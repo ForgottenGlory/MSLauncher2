@@ -31,6 +31,15 @@ extends MarginContainer
 @onready var installLocationButton2: = $MarginContainer/VBoxContainer/HBoxContainer3/InstallLocationButton2
 @onready var skinPreview: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/SkinPreview
 
+@onready var folderButtonsLabel: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/FolderButtonsLabel
+@onready var regularSavesButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/RegularSavesButton
+@onready var creatureSavesButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/CreatureSavesButton
+@onready var stockGameButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/StockGameFolderButton
+@onready var racemenuFolderButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/RaceMenuPresetsFolderButton
+@onready var bodyslideFolderButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/BodyslidePresetsFolderButton
+@onready var crashlogFolderButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/CrashLogsFolderButton
+@onready var browseFoldersButton: = $MarginContainer/VBoxContainer/HBoxContainer2/BrowseFoldersButton
+
 @onready var mo2Button: = $MarginContainer/VBoxContainer/HBoxContainer3/MO2Button
 @onready var bethIniButton: = $MarginContainer/VBoxContainer/HBoxContainer3/BethINIButton
 
@@ -44,11 +53,15 @@ var bethIniPath = ""
 var enbOrgPath = ""
 var regularProfileLoadOrderPath = ""
 var creatureProfileLoadOrderPath = ""
+var regularProfileSavesPath = ""
+var creatureProfileSavesPath = ""
 
 var listInstalled = false
 var advancedMode = false
 var skimpyMale = false
 var skimpyFemale = false
+
+var folderMode = false
 
 func _ready():
 	RenderingServer.set_default_clear_color(Color.hex(0x212529ff))
@@ -71,6 +84,7 @@ func _ready():
 		enbOrgPath = configFile.get_value("Paths", "enbOrgPath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/tools/BethINI/BethINI.exe"))
 		regularProfileLoadOrderPath = configFile.get_value("Paths", "regularProfilePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/profiles/Masterstroke/modlist.txt"))
 		creatureProfileLoadOrderPath = configFile.get_value("Paths", "creatureProfilePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/profiles/Masterstroke (Creature Profile)/modlist.txt"))
+		regularProfileSavesPath = configFile.get_value("Paths", "regularProfileSavePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/profiles/Masterstroke/saves"))
 	
 	if FileAccess.file_exists(mo2Path):
 		listInstalled = true
@@ -81,6 +95,13 @@ func _ready():
 		print(mo2Path)
 		
 	skinPreview.visible = false
+	folderButtonsLabel.visible = false
+	regularSavesButton.visible = false
+	creatureSavesButton.visible = false
+	stockGameButton.visible = false
+	racemenuFolderButton.visible = false
+	bodyslideFolderButton.visible = false
+	crashlogFolderButton.visible = false
 	
 	if listInstalled:
 		msLogo.size_flags_stretch_ratio = 5
@@ -103,6 +124,7 @@ func _ready():
 		launchWJButton.visible = true
 		bugReportButton.visible = true
 		installLocationButton.visible = false
+		browseFoldersButton.visible = true
 		instructions.text = "Welcome to the Masterstroke launcher!\n\nYou can configure the modlist to your liking using the settings on the left. When you're ready, press \"Launch Masterstroke\" to begin playing."
 	else:
 		msLogo.size_flags_stretch_ratio = 1
@@ -127,6 +149,7 @@ func _ready():
 		launchWJButton.visible = false
 		bugReportButton.visible = false
 		installLocationButton.visible = true
+		browseFoldersButton.visible = false
 		instructions.text = "Welcome to the Masterstroke launcher!\n\nIt looks like you haven't installed Masterstroke yet. You can launch Wabbajack to install the modlist from this program by clicking the \"Launch Wabbajack\" button. Refer to the Masterstroke documentation for information on how to properly install Masterstroke."
 	
 	mo2Button.visible = advancedMode
@@ -477,12 +500,16 @@ func _on_file_dialog_dir_selected(dir):
 	enbOrgPath = dir + "/tools/ENB Organizer/ENB Organizer.exe"
 	regularProfileLoadOrderPath = dir + "/profiles/Masterstroke/modlist.txt"
 	creatureProfileLoadOrderPath = dir + "/profiles/Masterstroke (Creature Profile)/modlist.txt"
+	creatureProfileSavesPath = dir + "/profiles/Masterstroke (Creature Profile)/saves"
+	regularProfileSavesPath = dir + "/profiles/Masterstroke/saves"
 	
 	configFile.set_value("Paths", "mo2Path", mo2Path)
 	configFile.set_value("Paths", "bethIniPath", bethIniPath)
 	configFile.set_value("Paths", "enbOrgPath", enbOrgPath)
 	configFile.set_value("Paths", "regularProfilePath", regularProfileLoadOrderPath)
 	configFile.set_value("Paths", "creatureProfilePath", creatureProfileLoadOrderPath)
+	configFile.set_value("Paths", "regularSavePath", regularProfileSavesPath)
+	configFile.set_value("Paths", "creatureSavePath", creatureProfileSavesPath)
 	configFile.save(configFilePath)
 	
 	advancedMode = false
@@ -545,3 +572,61 @@ func _on_brighter_int_dropdown_focus_exited():
 func _on_brighter_int_dropdown_focus_entered():
 	skinPreview.visible = true
 	skinPreview.texture = load("res://Skins/BrighterCompare.tres")
+
+
+func _on_browse_folders_button_mouse_entered():
+	pass # Replace with function body.
+
+
+func _on_browse_folders_button_pressed():
+	if !folderMode:
+		folderMode = true
+		profileDropdown.visible = false
+		profileLabel.visible = false
+		advancedCheckButton.visible = false
+		skinLabel.visible = false
+		skinDropdown.visible = false
+		brighterIntLabel.visible = false
+		brighterIntDropdown.visible = false
+		ultrawideLabel.visible = false
+		ultrawideDropdown.visible = false
+		versionLabel.visible = false
+		skimpyMaleBox.visible = false
+		skimpyFemaleBox.visible = false
+		launchButton.visible = false
+		folderButtonsLabel.visible = true
+		regularSavesButton.visible = true
+		creatureSavesButton.visible = true
+		stockGameButton.visible = true
+		racemenuFolderButton.visible = true
+		bodyslideFolderButton.visible = true
+		crashlogFolderButton.visible = true
+		spacer.visible = true
+	else:
+		folderMode = false
+		_ready()
+
+
+func _on_regular_saves_button_pressed():
+	OS.shell_open(regularProfileSavesPath)
+	print(regularProfileSavesPath)
+
+
+func _on_creature_saves_button_pressed():
+	pass # Replace with function body.
+
+
+func _on_stock_game_folder_button_pressed():
+	pass # Replace with function body.
+
+
+func _on_race_menu_presets_folder_button_pressed():
+	pass # Replace with function body.
+
+
+func _on_bodyslide_presets_folder_button_pressed():
+	pass # Replace with function body.
+
+
+func _on_crash_logs_folder_button_pressed():
+	pass # Replace with function body.
