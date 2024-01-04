@@ -178,12 +178,10 @@ func _process(delta):
 		ultrawideLabel.visible = not launcherPaused
 		ultrawideDropdown.visible = not launcherPaused
 		enbButton.visible = not launcherPaused
-		mcmButton.visible = not launcherPaused
 		versionLabel.visible = not launcherPaused
 		skimpyMaleBox.visible = not launcherPaused
 		skimpyFemaleBox.visible = not launcherPaused
 		launchWJButton.visible = not launcherPaused
-		bugReportButton.visible = not launcherPaused
 		browseFoldersButton.visible = not launcherPaused
 		instructions.text = ""
 		descriptionLabel.text = "The game is currently running and the launcher is locked. Settings can only be changed with the game closed."
@@ -201,12 +199,10 @@ func _process(delta):
 		ultrawideLabel.visible = not launcherPaused
 		ultrawideDropdown.visible = not launcherPaused
 		enbButton.visible = not launcherPaused
-		mcmButton.visible = not launcherPaused
 		versionLabel.visible = not launcherPaused
 		skimpyMaleBox.visible = not launcherPaused
 		skimpyFemaleBox.visible = not launcherPaused
 		launchWJButton.visible = not launcherPaused
-		bugReportButton.visible = not launcherPaused
 		browseFoldersButton.visible = not launcherPaused
 		instructions.text = "Welcome to the Masterstroke launcher!\n\nIt looks like you haven't installed Masterstroke yet. You can launch Wabbajack to install the modlist from this program by clicking the \"Launch Wabbajack\" button. Refer to the Masterstroke documentation for information on how to properly install Masterstroke."
 
