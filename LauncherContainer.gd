@@ -48,6 +48,7 @@ var configFilePath = "res://launcher.cfg"
 var dragpoint = null
 
 var wabbajackPath = ""
+var basePath = ""
 var mo2Path = ""
 var bethIniPath = ""
 var enbOrgPath = ""
@@ -79,6 +80,7 @@ func _ready():
 		skimpyMale = configFile.get_value("General", "male_skimpy", false)
 		
 		wabbajackPath = OS.get_executable_path().get_base_dir().path_join("Wabbajack.exe")
+		basePath = configFile.get_value("Paths", "basePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/"))
 		mo2Path = configFile.get_value("Paths", "mo2Path", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/ModOrganizer.exe"))
 		bethIniPath = configFile.get_value("Paths", "bethIniPath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/tools/BethINI/BethINI.exe"))
 		enbOrgPath = configFile.get_value("Paths", "enbOrgPath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/tools/BethINI/BethINI.exe"))
@@ -495,6 +497,7 @@ func _on_install_location_button_mouse_entered():
 
 
 func _on_file_dialog_dir_selected(dir):
+	basePath = dir
 	mo2Path = dir + "/ModOrganizer.exe"
 	bethIniPath = dir + "/tools/BethINI/BethINI.exe"
 	enbOrgPath = dir + "/tools/ENB Organizer/ENB Organizer.exe"
@@ -503,6 +506,7 @@ func _on_file_dialog_dir_selected(dir):
 	creatureProfileSavesPath = dir + "/profiles/Masterstroke (Creature Profile)/saves"
 	regularProfileSavesPath = dir + "/profiles/Masterstroke/saves"
 	
+	configFile.set_value("Paths", "basePath", basePath)
 	configFile.set_value("Paths", "mo2Path", mo2Path)
 	configFile.set_value("Paths", "bethIniPath", bethIniPath)
 	configFile.set_value("Paths", "enbOrgPath", enbOrgPath)
@@ -608,25 +612,30 @@ func _on_browse_folders_button_pressed():
 
 
 func _on_regular_saves_button_pressed():
-	OS.shell_open(regularProfileSavesPath)
-	print(regularProfileSavesPath)
+	var pathToOpen = basePath + "/profiles/Masterstroke/saves"
+	OS.shell_show_in_file_manager(pathToOpen, true)
 
 
 func _on_creature_saves_button_pressed():
-	pass # Replace with function body.
+	var pathToOpen = basePath + "/profiles/Masterstroke (Creature Profile)/saves"
+	OS.shell_show_in_file_manager(pathToOpen, true)
 
 
 func _on_stock_game_folder_button_pressed():
-	pass # Replace with function body.
+	var pathToOpen = basePath + "/Stock Game"
+	OS.shell_show_in_file_manager(pathToOpen, true)
 
 
 func _on_race_menu_presets_folder_button_pressed():
-	pass # Replace with function body.
+	var pathToOpen = basePath + "/mods/Masterstroke Custom RaceMenu Presets/SKSE/Plugins/CharGen/Presets"
+	OS.shell_show_in_file_manager(pathToOpen, true)
 
 
 func _on_bodyslide_presets_folder_button_pressed():
-	pass # Replace with function body.
+	var pathToOpen = basePath + "/mods/Masterstroke Custom Bodyslide Presets/CalienteTools/BodySlide/SliderPresets"
+	OS.shell_show_in_file_manager(pathToOpen, true)
 
 
 func _on_crash_logs_folder_button_pressed():
-	pass # Replace with function body.
+	var pathToOpen = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/My Games/Skyrim Special Edition/SKSE"
+	OS.shell_show_in_file_manager(pathToOpen, true)
