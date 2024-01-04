@@ -2,7 +2,7 @@ extends MarginContainer
 
 @onready var launchButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LaunchButton
 
-@onready var welcomeText: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/ScrollContainer/Description
+@onready var instructions: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/ScrollContainer/Description
 @onready var descriptionLabel: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/HBoxContainer/ScrollContainer2/Tooltip
 
 @onready var advancedCheckButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/AdvancedCheckButton
@@ -24,7 +24,7 @@ extends MarginContainer
 @onready var spacer: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/Spacer
 @onready var launchWJButton: = $MarginContainer/VBoxContainer/HBoxContainer2/LaunchWJButton
 @onready var bugReportButton: = $MarginContainer/VBoxContainer/HBoxContainer2/BugReportButton
-@onready var instructions: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/ScrollContainer/Description
+
 @onready var hSeparator1: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/HSeparator
 @onready var installLocationButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/InstallLocationButton
 @onready var fileDialog: = $FileDialog
@@ -63,6 +63,9 @@ var skimpyMale = false
 var skimpyFemale = false
 
 var folderMode = false
+var launcherPaused = false
+
+var _pid = null
 
 func _ready():
 	RenderingServer.set_default_clear_color(Color.hex(0x212529ff))
@@ -160,18 +163,67 @@ func _ready():
 	
 	versionLabel.text = "Version: " + get_version(regularProfileLoadOrderPath)
 
+func _process(delta):
+	if _pid != null and OS.is_process_running(_pid):
+		launcherPaused = true
+		launchButton.visible = not launcherPaused
+		spacer.visible = not launcherPaused
+		profileDropdown.visible = not launcherPaused
+		profileLabel.visible = not launcherPaused
+		advancedCheckButton.visible = not launcherPaused
+		skinLabel.visible = not launcherPaused
+		skinDropdown.visible = not launcherPaused
+		brighterIntLabel.visible = not launcherPaused
+		brighterIntDropdown.visible = not launcherPaused
+		ultrawideLabel.visible = not launcherPaused
+		ultrawideDropdown.visible = not launcherPaused
+		enbButton.visible = not launcherPaused
+		mcmButton.visible = not launcherPaused
+		versionLabel.visible = not launcherPaused
+		skimpyMaleBox.visible = not launcherPaused
+		skimpyFemaleBox.visible = not launcherPaused
+		launchWJButton.visible = not launcherPaused
+		bugReportButton.visible = not launcherPaused
+		browseFoldersButton.visible = not launcherPaused
+		instructions.text = ""
+		descriptionLabel.text = "The game is currently running and the launcher is locked. Settings can only be changed with the game closed."
+	elif _pid != null and not OS.is_process_running(_pid):
+		launcherPaused = false
+		launchButton.visible = not launcherPaused
+		spacer.visible = not launcherPaused
+		profileDropdown.visible = not launcherPaused
+		profileLabel.visible = not launcherPaused
+		advancedCheckButton.visible = not launcherPaused
+		skinLabel.visible = not launcherPaused
+		skinDropdown.visible = not launcherPaused
+		brighterIntLabel.visible = not launcherPaused
+		brighterIntDropdown.visible = not launcherPaused
+		ultrawideLabel.visible = not launcherPaused
+		ultrawideDropdown.visible = not launcherPaused
+		enbButton.visible = not launcherPaused
+		mcmButton.visible = not launcherPaused
+		versionLabel.visible = not launcherPaused
+		skimpyMaleBox.visible = not launcherPaused
+		skimpyFemaleBox.visible = not launcherPaused
+		launchWJButton.visible = not launcherPaused
+		bugReportButton.visible = not launcherPaused
+		browseFoldersButton.visible = not launcherPaused
+		instructions.text = "Welcome to the Masterstroke launcher!\n\nIt looks like you haven't installed Masterstroke yet. You can launch Wabbajack to install the modlist from this program by clicking the \"Launch Wabbajack\" button. Refer to the Masterstroke documentation for information on how to properly install Masterstroke."
+
 func _on_launch_button_pressed():
 	if profileDropdown.get_selected_id() == 0 and listInstalled:
-		var _pid2 = OS.create_process(mo2Path, ["-p", "Masterstroke", "SKSE"])
+		_pid = OS.create_process(mo2Path, ["-p", "Masterstroke", "SKSE"])
+		launcherPaused = true
 	elif profileDropdown.get_selected_id() == 1 and listInstalled:
-		var _pid = OS.create_process(mo2Path, ["-p", "Masterstroke (Creature Profile)", "SKSE"])
+		_pid = OS.create_process(mo2Path, ["-p", "Masterstroke (Creature Profile)", "SKSE"])
+		launcherPaused = true
 	elif listInstalled == false:
 		var _wjid = OS.create_process(wabbajackPath, [], false)
 		OS.shell_open("https://www.fgsmodlists.com/docs/masterstroke/installation-guide/")
 		get_tree().quit()
 	else:
 		pass
-	
+
 func _on_option_button_item_selected(index):
 	if index == 0:
 		descriptionLabel.text = "The regular profile for Masterstroke."
