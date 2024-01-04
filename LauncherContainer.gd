@@ -254,6 +254,7 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
 			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
 			find_and_replace(profilePath, "-Fair Skin Complexion", "+Fair Skin Complexion")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			skinPreview.texture = load("res://Skins/FairSkin.tres")
 			descriptionLabel.text = "Enabled Fair Skin Complexion."
 		1: #Leyenda
@@ -264,6 +265,7 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
 			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
 			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			skinPreview.texture = load("res://Skins/Leyenda.png")
 			descriptionLabel.text = "Enabled Leyenda Skin."
 		2: #Leyenda Muscular
@@ -274,6 +276,7 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
 			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
 			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			skinPreview.texture = load("res://Skins/LeyendaMusc.tres")
 			descriptionLabel.text = "Enabled Leyenda Skin (Muscular)."
 		3: #Demoniac
@@ -284,6 +287,7 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
 			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
 			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			skinPreview.texture = load("res://Skins/Demoniac.tres")
 			descriptionLabel.text = "Enabled Demoniac Skin."
 		4: #Diamond
@@ -294,6 +298,7 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
 			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
 			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			skinPreview.texture = load("res://Skins/Diamond.tres")
 			descriptionLabel.text = "Enabled Diamond Skin."
 		5: #The Pure
@@ -304,6 +309,7 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "-The Pure - CBBE", "+The Pure - CBBE")
 			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
 			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			skinPreview.texture = load("res://Skins/ThePure.tres")
 			descriptionLabel.text = "Enabled The Pure Skin."
 		6: #Pride Of Valhalla
@@ -313,9 +319,21 @@ func _on_skin_dropdown_item_selected(index):
 			find_and_replace(profilePath, "+Diamond Skin - CBBE and UNP Female Textures", "-Diamond Skin - CBBE and UNP Female Textures")
 			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
 			find_and_replace(profilePath, "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
+			find_and_replace(profilePath, "+Binibini Skin for CBBE 3BA COCO", "-Binibini Skin for CBBE 3BA COCO")
 			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
 			skinPreview.texture = load("res://Skins/PrideOfValhalla.tres")
 			descriptionLabel.text = "Enabled Pride of Valhalla Skin."
+		7: #Binibini
+			find_and_replace(profilePath, "+Leyenda Skin", "-Leyenda Skin")
+			find_and_replace(profilePath, "+Leyenda Skin (Muscular)", "-Leyenda Skin (Muscular)")
+			find_and_replace(profilePath, "+Demoniac_Texture", "-Demoniac_Texture")
+			find_and_replace(profilePath, "+Diamond Skin - CBBE and UNP Female Textures", "-Diamond Skin - CBBE and UNP Female Textures")
+			find_and_replace(profilePath, "+The Pure - CBBE", "-The Pure - CBBE")
+			find_and_replace(profilePath, "+Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE", "-Pride of Valhalla - Super HD Skin Set for UNP-UNPB-7B-CBBE")
+			find_and_replace(profilePath, "+Fair Skin Complexion", "-Fair Skin Complexion")
+			find_and_replace(profilePath, "-Binibini Skin for CBBE 3BA COCO", "+Binibini Skin for CBBE 3BA COCO")
+			skinPreview.texture = null
+			descriptionLabel.text = "Enabled Binibini skin."
 			
 	configFile.set_value("General", "selected_skin", index)
 	configFile.save(configFilePath)
@@ -579,7 +597,7 @@ func _on_brighter_int_dropdown_focus_entered():
 
 
 func _on_browse_folders_button_mouse_entered():
-	pass # Replace with function body.
+	descriptionLabel.text = "Toggle the folder browser menu."
 
 
 func _on_browse_folders_button_pressed():
@@ -606,6 +624,9 @@ func _on_browse_folders_button_pressed():
 		bodyslideFolderButton.visible = true
 		crashlogFolderButton.visible = true
 		spacer.visible = true
+		mo2Button.visible = false
+		bethIniButton.visible = false
+		installLocationButton2.visible = false
 	else:
 		folderMode = false
 		_ready()
@@ -639,3 +660,27 @@ func _on_bodyslide_presets_folder_button_pressed():
 func _on_crash_logs_folder_button_pressed():
 	var pathToOpen = OS.get_system_dir(OS.SYSTEM_DIR_DOCUMENTS) + "/My Games/Skyrim Special Edition/SKSE"
 	OS.shell_show_in_file_manager(pathToOpen, true)
+
+
+func _on_regular_saves_button_mouse_entered():
+	descriptionLabel.text = "Open the Regular Profile Saves folder, if it exists."
+
+
+func _on_creature_saves_button_mouse_entered():
+	descriptionLabel.text = "Open the Creature Profile Saves folder, if it exists."
+
+
+func _on_stock_game_folder_button_mouse_entered():
+	descriptionLabel.text = "Open Masterstroke's Stock Game folder."
+
+
+func _on_race_menu_presets_folder_button_mouse_entered():
+	descriptionLabel.text = "Open the RaceMenu Presets folder. This folder is where you should put any RaceMenu presets you have created or want to add to the list."
+
+
+func _on_bodyslide_presets_folder_button_mouse_entered():
+	descriptionLabel.text = "Open the BodySlide Presets folder. This folder is where you should put any BodySlide presets you have created or want to add to the list."
+
+
+func _on_crash_logs_folder_button_mouse_entered():
+	descriptionLabel.text = "Open the folder containing crash logs for Masterstroke."
