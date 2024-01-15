@@ -1,5 +1,9 @@
 extends MarginContainer
 
+var ownerName = "ForgottenGlory"
+var repo = "MSLauncher2"
+var current_version_date = "2024-01-15T00:00:00Z"
+
 @onready var launchButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LaunchButton
 
 @onready var instructions: = $MarginContainer/VBoxContainer/HBoxContainer/DescriptionContainer/VBoxContainer/ScrollContainer/Description
@@ -39,6 +43,7 @@ extends MarginContainer
 @onready var bodyslideFolderButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/BodyslidePresetsFolderButton
 @onready var crashlogFolderButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/CrashLogsFolderButton
 @onready var browseFoldersButton: = $MarginContainer/VBoxContainer/HBoxContainer2/BrowseFoldersButton
+@onready var downloadFolderButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/DownloadFolderButton
 
 @onready var mo2Button: = $MarginContainer/VBoxContainer/HBoxContainer3/MO2Button
 @onready var bethIniButton: = $MarginContainer/VBoxContainer/HBoxContainer3/BethINIButton
@@ -60,6 +65,7 @@ var regularProfileLoadOrderPath = ""
 var creatureProfileLoadOrderPath = ""
 var regularProfileSavesPath = ""
 var creatureProfileSavesPath = ""
+var displayTweaksPath = ""
 
 var listInstalled = false
 var advancedMode = false
@@ -78,7 +84,10 @@ var resolutionY = -1
 var _pid = null
 
 func _ready():
+	var profilePath = ""
 	RenderingServer.set_default_clear_color(Color.hex(0x212529ff))
+	
+	#check_for_update()
 	
 	if configFile.load(configFilePath) == OK:
 		#print("config file loaded")
@@ -100,15 +109,19 @@ func _ready():
 		regularProfileLoadOrderPath = configFile.get_value("Paths", "regularProfilePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/profiles/Masterstroke/modlist.txt"))
 		creatureProfileLoadOrderPath = configFile.get_value("Paths", "creatureProfilePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/profiles/Masterstroke (Creature Profile)/modlist.txt"))
 		regularProfileSavesPath = configFile.get_value("Paths", "regularProfileSavePath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/profiles/Masterstroke/saves"))
-	
+		displayTweaksPath = configFile.get_value("Paths", "displayTweaksPath", OS.get_executable_path().get_base_dir().path_join("/Masterstroke Install Folder/mods/SSE Display Tweaks/SKSE/Plugins"))
+		
+		
 	if FileAccess.file_exists(mo2Path):
 		listInstalled = true
+		profilePath = get_profile_path()
 		#print("list install found")
 	else:
 		listInstalled = false
 		#print("list install not found")
 		#print(mo2Path)
-		
+	
+	
 	skinPreview.visible = false
 	folderButtonsLabel.visible = false
 	regularSavesButton.visible = false
@@ -117,6 +130,7 @@ func _ready():
 	racemenuFolderButton.visible = false
 	bodyslideFolderButton.visible = false
 	crashlogFolderButton.visible = false
+	downloadFolderButton.visible = false
 	
 	if listInstalled:
 		msLogo.size_flags_stretch_ratio = 5
@@ -178,18 +192,42 @@ func _ready():
 	bethIniButton.visible = advancedMode
 	installLocationButton2.visible = advancedMode
 	
-	ultrawideDropdown.select(configFile.get_value("General", "selected_ultrawide", 0))
-	if ultrawideDropdown.selected == 3:
-		customResolution = true
-		resolutionXbox.visible = customResolution
-		resolutionYbox.visible = customResolution
-		resolutionLabel.visible = customResolution
-		resolutionXbox.text = str(configFile.get_value("General", "resolution_x"))
-		resolutionYbox.text = str(configFile.get_value("General", "resolution_y"))
+	if configFile.load(configFilePath) == OK:
+		resolutionX = configFile.get_value("General", "resolution_x", 1920)
+		resolutionY = configFile.get_value("General", "resolution_y", 1080)
+	
+		ultrawideDropdown.select(configFile.get_value("General", "selected_ultrawide", 0))
+		if ultrawideDropdown.selected == 3:
+			customResolution = true
+			resolutionXbox.visible = customResolution
+			resolutionYbox.visible = customResolution
+			resolutionLabel.visible = customResolution
+			resolutionXbox.text = str(configFile.get_value("General", "resolution_x"))
+			resolutionYbox.text = str(configFile.get_value("General", "resolution_y"))
+			
+		if ultrawideDropdown.selected != 3:
+			if int(resolutionY) != 0 and int(resolutionY) != null and int(resolutionX) / int(resolutionY) == 21 / 9:
+				ultrawide21x9 = true
+				ultrawide32x9 = false
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "-Masterstroke Ultrawide 21 by 9", "+Masterstroke Ultrawide 21 by 9")
+			elif int(resolutionY) != 0 and int(resolutionY) != null and int(resolutionX) / int(resolutionY) == 32 / 9:
+				ultrawide21x9 = false
+				ultrawide32x9 = true
+				find_and_replace(profilePath, "-Masterstroke Ultrawide 32 by 9", "+Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+			else:
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+	
+#	print(displayTweaksPath)
+#	print(resolutionX)
+#	print(resolutionY)
+		find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 	
 	versionLabel.text = "Version: " + get_version(regularProfileLoadOrderPath)
 
-func _process(delta):
+func _process(_delta):
 	if _pid != null and OS.is_process_running(_pid):
 		launcherPaused = true
 		launchButton.visible = not launcherPaused
@@ -209,6 +247,13 @@ func _process(delta):
 		skimpyFemaleBox.visible = not launcherPaused
 		launchWJButton.visible = not launcherPaused
 		browseFoldersButton.visible = not launcherPaused
+		resolutionLabel.visible = not launcherPaused
+		resolutionXbox.visible = not launcherPaused
+		resolutionYbox.visible = not launcherPaused
+		if ultrawideDropdown.selected == 3:
+			resolutionLabel.visible = not launcherPaused
+			resolutionXbox.visible = not launcherPaused
+			resolutionYbox.visible = not launcherPaused
 		instructions.text = ""
 		descriptionLabel.text = "The game is currently running and the launcher is locked. Settings can only be changed with the game closed."
 	elif _pid != null and not OS.is_process_running(_pid):
@@ -230,6 +275,10 @@ func _process(delta):
 		skimpyFemaleBox.visible = not launcherPaused
 		launchWJButton.visible = not launcherPaused
 		browseFoldersButton.visible = not launcherPaused
+		if ultrawideDropdown.selected == 3:
+			resolutionLabel.visible = not launcherPaused
+			resolutionXbox.visible = not launcherPaused
+			resolutionYbox.visible = not launcherPaused
 		instructions.text = "Welcome to the Masterstroke launcher!\n\nIt looks like you haven't installed Masterstroke yet. You can launch Wabbajack to install the modlist from this program by clicking the \"Launch Wabbajack\" button. Refer to the Masterstroke documentation for information on how to properly install Masterstroke."
 
 func _on_launch_button_pressed():
@@ -434,31 +483,30 @@ func _on_ultrawide_dropdown_item_selected(index):
 			resolutionXbox.visible = customResolution
 			resolutionYbox.visible = customResolution
 			
-			if ultrawide21x9:
-				find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-				find_and_replace(profilePath, "+Nordic UI 32 by 9", "-Nordic UI 32 by 9")
-				find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-				find_and_replace(profilePath, "-Nordic UI 21 by 9", "+Nordic UI 21 by 9")
-				find_and_replace(profilePath, "+NORDIC UI - Ultrawide Fixes and Patches (32x9)", "-NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-				descriptionLabel.text = "Enabled 21x9 Ultrawide add-ons."
-			elif ultrawide32x9:
-				find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-				find_and_replace(profilePath, "-Nordic UI 32 by 9", "+Nordic UI 32 by 9")
-				find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-				find_and_replace(profilePath, "+Nordic UI 21 by 9", "-Nordic UI 21 by 9")
-				find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches (32x9)", "+NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-				descriptionLabel.text = "Enabled 32x9 Ultrawide add-ons."
-			
 			var screen_resolution = DisplayServer.screen_get_size()
 			
 			resolutionX = screen_resolution[0]
 			resolutionY = screen_resolution[1]
 			
+			
+			if ultrawide21x9:
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "-Masterstroke Ultrawide 21 by 9", "+Masterstroke Ultrawide 21 by 9")
+				descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n21x9 ultrawide addons enabled."
+			elif ultrawide32x9:
+				find_and_replace(profilePath, "-Masterstroke Ultrawide 32 by 9", "+Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+				descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n32x9 ultrawide addons enabled."
+			else:
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+				descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\nUltrawide addons disabled."
+			
 			configFile.set_value("General", "resolution_x", int(resolutionX))
 			configFile.set_value("General", "resolution_y", int(resolutionY))
 			configFile.save(configFilePath)
 			
-			# write to display tweaks ini
+			find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 			
 		1: #1920x1080
 			customResolution = false
@@ -466,56 +514,56 @@ func _on_ultrawide_dropdown_item_selected(index):
 			resolutionXbox.visible = customResolution
 			resolutionYbox.visible = customResolution
 			
-			find_and_replace(profilePath, "+NORDIC UI - Ultrawide Fixes and Patches", "-NORDIC UI - Ultrawide Fixes and Patches")
-			find_and_replace(profilePath, "+Nordic UI 32 by 9", "-Nordic UI 32 by 9")
-			find_and_replace(profilePath, "+The Elder Scrolls Legends - Loading Screens 21x9", "-The Elder Scrolls Legends - Loading Screens 21x9")
-			find_and_replace(profilePath, "+Nordic UI 21 by 9", "-Nordic UI 21 by 9")
-			find_and_replace(profilePath, "+NORDIC UI - Ultrawide Fixes and Patches (32x9)", "-NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-			descriptionLabel.text = "Disabled Ultrawide add-ons."
+			resolutionX = 1920
+			resolutionY = 1080
+			
+			find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+			find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+			descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\nUltrawide addons disabled."
 			
 			configFile.set_value("General", "resolution_x", 1920)
 			configFile.set_value("General", "resolution_y", 1080)
 			configFile.save(configFilePath)
 			
-			# write to display tweaks ini
+			find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 			
 		2: #half maximum
 			customResolution = false
 			resolutionLabel.visible = customResolution
 			resolutionXbox.visible = customResolution
 			resolutionYbox.visible = customResolution
-			
-			if ultrawide21x9:
-				find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-				find_and_replace(profilePath, "+Nordic UI 32 by 9", "-Nordic UI 32 by 9")
-				find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-				find_and_replace(profilePath, "-Nordic UI 21 by 9", "+Nordic UI 21 by 9")
-				find_and_replace(profilePath, "+NORDIC UI - Ultrawide Fixes and Patches (32x9)", "-NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-				descriptionLabel.text = "Enabled 21x9 Ultrawide add-ons."
-			elif ultrawide32x9:
-				find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-				find_and_replace(profilePath, "-Nordic UI 32 by 9", "+Nordic UI 32 by 9")
-				find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-				find_and_replace(profilePath, "+Nordic UI 21 by 9", "-Nordic UI 21 by 9")
-				find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches (32x9)", "+NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-				descriptionLabel.text = "Enabled 32x9 Ultrawide add-ons."
 				
 			var screen_resolution = DisplayServer.screen_get_size()
 			
-			resolutionX = screen_resolution[0]
-			resolutionY = screen_resolution[1]
+			resolutionX = screen_resolution[0] / 2
+			resolutionY = screen_resolution[1] / 2
+			
+			if ultrawide21x9:
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "-Masterstroke Ultrawide 21 by 9", "+Masterstroke Ultrawide 21 by 9")
+				descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n21x9 ultrawide addons enabled."
+			elif ultrawide32x9:
+				find_and_replace(profilePath, "-Masterstroke Ultrawide 32 by 9", "+Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+				descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n32x9 ultrawide addons enabled."
+			else:
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+				find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+				descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\nUltrawide addons disabled."
 			
 			configFile.set_value("General", "resolution_x", int(resolutionX / 2))
 			configFile.set_value("General", "resolution_y", int(resolutionY / 2))
 			configFile.save(configFilePath)
 				
-			# write to display tweaks ini
+			find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 			
 		3: #custom
 			customResolution = true
 			resolutionLabel.visible = customResolution
 			resolutionXbox.visible = customResolution
 			resolutionYbox.visible = customResolution
+			
+			find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 			
 	configFile.set_value("General", "selected_ultrawide", index)
 	configFile.save(configFilePath)
@@ -534,7 +582,7 @@ func find_and_replace(file_path, line_to_find, replace_with):
 	
 	while not file.eof_reached():
 		var line = file.get_line()
-		if line == line_to_find:
+		if line_to_find in line:
 			found_line = true
 			lines.append(replace_with)
 		else:
@@ -544,11 +592,11 @@ func find_and_replace(file_path, line_to_find, replace_with):
 	
 	file = FileAccess.open(file_path, FileAccess.WRITE)
 	
-	for i in lines.size():
-		file.store_string(lines.pop_front() + "\n")
+	for line in lines:
+		file.store_string(line + "\n")
 	
-	#if found_line == true:
-		#print("Replaced string " + line_to_find + " with " + replace_with + " successfully")
+	if found_line == true:
+		print("Replaced string " + line_to_find + " with " + replace_with + " successfully")
 	
 	file.close()
 	
@@ -656,6 +704,7 @@ func _on_file_dialog_dir_selected(dir):
 	creatureProfileLoadOrderPath = dir + "/profiles/Masterstroke (Creature Profile)/modlist.txt"
 	creatureProfileSavesPath = dir + "/profiles/Masterstroke (Creature Profile)/saves"
 	regularProfileSavesPath = dir + "/profiles/Masterstroke/saves"
+	displayTweaksPath = dir + "/mods/SSE Display Tweaks/SKSE/Plugins/SSEDisplayTweaks.ini"
 	
 	configFile.set_value("Paths", "basePath", basePath)
 	configFile.set_value("Paths", "mo2Path", mo2Path)
@@ -665,6 +714,7 @@ func _on_file_dialog_dir_selected(dir):
 	configFile.set_value("Paths", "creatureProfilePath", creatureProfileLoadOrderPath)
 	configFile.set_value("Paths", "regularSavePath", regularProfileSavesPath)
 	configFile.set_value("Paths", "creatureSavePath", creatureProfileSavesPath)
+	configFile.set_value("Paths", "displayTweaksPath", displayTweaksPath)
 	configFile.save(configFilePath)
 	
 	advancedMode = false
@@ -747,6 +797,7 @@ func _on_browse_folders_button_pressed():
 		regularSavesButton.visible = true
 		creatureSavesButton.visible = true
 		stockGameButton.visible = true
+		downloadFolderButton.visible = true
 		racemenuFolderButton.visible = true
 		bodyslideFolderButton.visible = true
 		crashlogFolderButton.visible = true
@@ -754,6 +805,9 @@ func _on_browse_folders_button_pressed():
 		mo2Button.visible = false
 		bethIniButton.visible = false
 		installLocationButton2.visible = false
+		resolutionLabel.visible = false
+		resolutionXbox.visible = false
+		resolutionYbox.visible = false
 	else:
 		folderMode = false
 		_ready()
@@ -839,24 +893,24 @@ func _on_resolution_x_box_text_changed():
 	configFile.set_value("General", "resolution_x", int(resolutionX))
 	configFile.save(configFilePath)
 	
-	if resolutionX / resolutionY == 21 / 9:
+	if int(resolutionY) != 0 and int(resolutionY) != null and int(resolutionX) / int(resolutionY) == 21 / 9:
 		ultrawide21x9 = true
 		ultrawide32x9 = false
-		find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-		find_and_replace(profilePath, "+Nordic UI 32 by 9", "-Nordic UI 32 by 9")
-		find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-		find_and_replace(profilePath, "-Nordic UI 21 by 9", "+Nordic UI 21 by 9")
-		find_and_replace(profilePath, "+NORDIC UI - Ultrawide Fixes and Patches (32x9)", "-NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-		descriptionLabel.text = "Enabled 21x9 Ultrawide add-ons."
-	elif resolutionX / resolutionY == 32 / 9:
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+		find_and_replace(profilePath, "-Masterstroke Ultrawide 21 by 9", "+Masterstroke Ultrawide 21 by 9")
+		descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n21x9 ultrawide addons enabled."
+	elif int(resolutionY) != 0 and int(resolutionY) != null and int(resolutionX) / int(resolutionY) == 32 / 9:
 		ultrawide21x9 = false
 		ultrawide32x9 = true
-		find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-		find_and_replace(profilePath, "-Nordic UI 32 by 9", "+Nordic UI 32 by 9")
-		find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-		find_and_replace(profilePath, "+Nordic UI 21 by 9", "-Nordic UI 21 by 9")
-		find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches (32x9)", "+NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-		descriptionLabel.text = "Enabled 32x9 Ultrawide add-ons."
+		find_and_replace(profilePath, "-Masterstroke Ultrawide 32 by 9", "+Masterstroke Ultrawide 32 by 9")
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+		descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n32x9 ultrawide addons enabled."
+	else:
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+		descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\nUltrawide addons disabled."
+		
+	find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 
 func _on_resolution_y_box_text_changed():
 	var profilePath = get_profile_path()
@@ -870,26 +924,48 @@ func _on_resolution_y_box_text_changed():
 	configFile.set_value("General", "resolution_y", int(resolutionY))
 	configFile.save(configFilePath)
 	
-	if resolutionX / resolutionY == 21 / 9:
+	if int(resolutionY) != 0 and int(resolutionY) != null and int(resolutionX) / int(resolutionY) == 21 / 9:
 		ultrawide21x9 = true
 		ultrawide32x9 = false
-		find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-		find_and_replace(profilePath, "+Nordic UI 32 by 9", "-Nordic UI 32 by 9")
-		find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-		find_and_replace(profilePath, "-Nordic UI 21 by 9", "+Nordic UI 21 by 9")
-		find_and_replace(profilePath, "+NORDIC UI - Ultrawide Fixes and Patches (32x9)", "-NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-		descriptionLabel.text = "Enabled 21x9 Ultrawide add-ons."
-	elif resolutionX / resolutionY == 32 / 9:
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+		find_and_replace(profilePath, "-Masterstroke Ultrawide 21 by 9", "+Masterstroke Ultrawide 21 by 9")
+		descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n21x9 ultrawide addons enabled."
+	elif int(resolutionY) != 0 and int(resolutionY) != null and int(resolutionX) / int(resolutionY) == 32 / 9:
 		ultrawide21x9 = false
 		ultrawide32x9 = true
-		find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches", "+NORDIC UI - Ultrawide Fixes and Patches")
-		find_and_replace(profilePath, "-Nordic UI 32 by 9", "+Nordic UI 32 by 9")
-		find_and_replace(profilePath, "-The Elder Scrolls Legends - Loading Screens 21x9", "+The Elder Scrolls Legends - Loading Screens 21x9")
-		find_and_replace(profilePath, "+Nordic UI 21 by 9", "-Nordic UI 21 by 9")
-		find_and_replace(profilePath, "-NORDIC UI - Ultrawide Fixes and Patches (32x9)", "+NORDIC UI - Ultrawide Fixes and Patches (32x9)")
-		descriptionLabel.text = "Enabled 32x9 Ultrawide add-ons."
+		find_and_replace(profilePath, "-Masterstroke Ultrawide 32 by 9", "+Masterstroke Ultrawide 32 by 9")
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+		descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\n32x9 ultrawide addons enabled."
+	else:
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 32 by 9", "-Masterstroke Ultrawide 32 by 9")
+		find_and_replace(profilePath, "+Masterstroke Ultrawide 21 by 9", "-Masterstroke Ultrawide 21 by 9")
+		descriptionLabel.text = "Game resolution set to: " + str(resolutionX) + "x" + str(resolutionY) + "\nUltrawide addons disabled."
+		
+	find_and_replace(displayTweaksPath, "Resolution =", "Resolution =" + str(resolutionX) + "x" + str(resolutionY))
 
 func contains_non_numbers(text: String) -> bool:
 	var regex = RegEx.new()
 	regex.compile("[^\\d]")
 	return regex.search(text) != null
+
+
+func _on_download_folder_button_pressed():
+	var pathToOpen = basePath + "/downloads"
+	OS.shell_show_in_file_manager(pathToOpen, true)
+
+func check_for_update():
+	var http_request = HTTPRequest.new()
+	add_child(http_request)
+	http_request.connect("request_completed", _on_request_completed)
+	
+	var url = "https://api.github.com/repos/%s/%s/releases/latest" % [ownerName, repo]
+	http_request.request(url)
+	
+func _on_request_completed(result, response_code, headers, body):
+	var jsonParser = JSON.new()
+	
+	if response_code == 200:
+		var response = jsonParser.parse(body.get_string_from_utf8())
+		print("Latest release: ", response)
+	else:
+		print("Failed to fetch latest release. Response code: ", response_code)
