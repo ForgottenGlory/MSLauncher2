@@ -1,7 +1,7 @@
 extends MarginContainer
 
-var authToken = "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"
-var current_version_date = "2024-01-15T17:43:58Z"
+var authToken = "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"
+var current_version_date = "2024-01-15T18:53:33Z"
 
 @onready var launchButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LaunchButton
 
