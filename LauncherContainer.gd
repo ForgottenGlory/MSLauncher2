@@ -1,8 +1,7 @@
 extends MarginContainer
 
-var ownerName = "ForgottenGlory"
-var repo = "MSLauncher2"
-var current_version_date = "2024-01-15T00:00:00Z"
+var authToken = "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"
+var current_version_date = "2024-01-15T17:43:58Z"
 
 @onready var launchButton: = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/LaunchButton
 
@@ -52,6 +51,8 @@ var current_version_date = "2024-01-15T00:00:00Z"
 @onready var resolutionYbox = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/HBoxContainer/ResolutionYBox
 @onready var resolutionLabel = $MarginContainer/VBoxContainer/HBoxContainer/VBoxContainer/ResolutionLabel
 
+@onready var updateButton = $MarginContainer/HBoxContainer/UpdateAvailableButton
+
 var configFile = ConfigFile.new()
 var configFilePath = "res://launcher.cfg"
 var dragpoint = null
@@ -83,11 +84,14 @@ var resolutionY = -1
 
 var _pid = null
 
+var updateAvailable = false
+
 func _ready():
 	var profilePath = ""
 	RenderingServer.set_default_clear_color(Color.hex(0x212529ff))
 	
 	check_for_update()
+	updateButton.visible = updateAvailable
 	
 	if configFile.load(configFilePath) == OK:
 		#print("config file loaded")
@@ -958,14 +962,53 @@ func check_for_update():
 	add_child(http_request)
 	http_request.connect("request_completed", _on_request_completed)
 	
-	var url = "https://api.github.com/repos/%s/%s/releases/latest" % [ownerName, repo]
-	http_request.request(url)
+	var url = "https://api.github.com/repos/ForgottenGlory/MSLauncher2/releases/latest"
+	var headers = ["Accept: application/vnd.github+json", "Authorization: Bearer %s" % authToken, "X-GitHub-Api-Version: 2022-11-28"]
 	
+	http_request.request(url, headers, HTTPClient.METHOD_GET)
+
 func _on_request_completed(result, response_code, headers, body):
-	var jsonParser = JSON.new()
-	
 	if response_code == 200:
-		var response = jsonParser.parse(body.get_string_from_utf8())
-		print("Latest release: ", response)
+		var jsonParser = JSON.new()
+		var body_string = body.get_string_from_utf8()  # Convert byte array to string
+		var error = jsonParser.parse(body_string)
+
+		if error == OK:
+			var response = jsonParser.get_data()  # Parsed JSON data
+			var published_at_string = response["published_at"]
+			
+#			print(published_at_string)
+#			print(current_version_date)
+
+			#var current_version_date = "2024-01-15T23:53:58Z"
+			# Parse the dates using Godot's Time class
+			var published_at = Time.get_unix_time_from_datetime_string(published_at_string)
+			var version_date = Time.get_unix_time_from_datetime_string(current_version_date)
+			
+			var time_between = published_at - version_date
+
+			var leeway_hours = 1 * 3600
+			
+#			print("version date: ", version_date)
+#			print("published at: ", published_at)
+#			print("leeway hours: ", leeway_hours)
+#			print(time_between)
+
+			if time_between > leeway_hours:
+				print("update availabe")
+				updateAvailable = true
+				updateButton.visible = updateAvailable
+				updateButton.modulate = Color(1,0,0)
+			else:
+				updateAvailable = false
+				updateButton.visible = updateAvailable
+		else:
+			print("Error parsing JSON: ", error)
 	else:
 		print("Failed to fetch latest release. Response code: ", response_code)
+
+func _on_update_available_button_pressed():
+	OS.shell_open("https://github.com/ForgottenGlory/MSLauncher2/releases")
+
+func _on_update_available_button_mouse_entered():
+	descriptionLabel.text = "A new update for the launcher is available. Click this button to open the download page for the new version."
