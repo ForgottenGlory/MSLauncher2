@@ -87,7 +87,7 @@ func _ready():
 	var profilePath = ""
 	RenderingServer.set_default_clear_color(Color.hex(0x212529ff))
 	
-	#check_for_update()
+	check_for_update()
 	
 	if configFile.load(configFilePath) == OK:
 		#print("config file loaded")
